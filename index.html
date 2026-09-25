@@ -577,6 +577,7 @@
     nav.nav{
       position:fixed;
       top:68px; left:0; right:0;
+      z-index:40;
       height:calc(100vh - 68px);
       background:var(--bg);
       flex-direction:column;
@@ -590,18 +591,17 @@
       transition:transform .28s ease, opacity .28s ease, visibility .28s ease;
       overflow-y:auto;
     }
-    .nav-toggle-input:checked ~ .header-inner nav.nav,
     #nav-toggle:checked ~ .header-inner nav.nav{
       transform:translateX(0);
       opacity:1;
       visibility:visible;
     }
+    #nav-toggle:checked ~ .header-inner .burger span{ background:transparent; }
+    #nav-toggle:checked ~ .header-inner .burger span::before{ top:0; transform:rotate(45deg); }
+    #nav-toggle:checked ~ .header-inner .burger span::after{ top:0; transform:rotate(-45deg); }
     .nav-links{ flex-direction:column; align-items:flex-start; gap:20px; }
     .nav-links a{ font-size:19px; }
     .nav-actions{ flex-direction:column; align-items:stretch; margin-top:10px; }
-    .burger.open span{ background:transparent; }
-    .burger.open span::before{ top:0; transform:rotate(45deg); }
-    .burger.open span::after{ top:0; transform:rotate(-45deg); }
 
     .services-grid{ grid-template-columns:1fr; }
     .benefits-grid{ grid-template-columns:repeat(2,1fr); }
@@ -624,9 +624,9 @@
 <header>
   <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
   <div class="header-inner container">
-    <a href="#top" class="logo">
-      <img src="logo-orynai.png" alt="Orynai" class="logo-img">
-      <span style="color:var(--gold)">.kz</span>
+    <a href="#top" class="logo" aria-label="Orynai.kz">
+      <img src="logo-orynai.png" alt="" class="logo-img">
+      <span aria-hidden="true" style="color:var(--gold)">.kz</span>
     </a>
 
     <nav class="nav" id="nav">
@@ -642,7 +642,7 @@
       </div>
     </nav>
 
-    <label for="nav-toggle" class="burger" aria-label="Открыть меню"><span></span></label>
+    <label for="nav-toggle" class="burger" id="nav-burger" aria-label="Открыть меню" aria-controls="nav" aria-expanded="false"><span></span></label>
   </div>
 </header>
 
@@ -898,6 +898,36 @@
     </div>
   </div>
 </footer>
+
+<script>
+(function () {
+  var toggle = document.getElementById('nav-toggle');
+  var burger = document.getElementById('nav-burger');
+  if (!toggle || !burger) return;
+
+  function syncMenuState() {
+    var open = toggle.checked;
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    burger.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+  }
+
+  toggle.addEventListener('change', syncMenuState);
+
+  document.querySelectorAll('#nav a').forEach(function (link) {
+    link.addEventListener('click', function () {
+      toggle.checked = false;
+      syncMenuState();
+    });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && toggle.checked) {
+      toggle.checked = false;
+      syncMenuState();
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
